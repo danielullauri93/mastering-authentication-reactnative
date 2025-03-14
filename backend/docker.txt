@@ -1,0 +1,9 @@
+cree un contenedor con docker run --name mongo_test -d -p 27017:27017 mongo
+para ejecutar mongo manual mente
+
+const MONGO_URI = 'mongodb://localhost:27017/auth-api'
+
+mongoose
+	.connect(MONGO_URI)
+	.then(() => console.log('✅ Conectado a MongoDB en Docker'))
+	.catch(err => console.error('❌ Error conectando a MongoDB:', err))
