@@ -1,89 +1,105 @@
+import { useMutation } from '@tanstack/react-query'
 import { Formik } from 'formik'
 import {
-	StyleSheet,
-	Text,
-	View,
-	TextInput,
-	TouchableOpacity
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  TouchableOpacity,
+  ActivityIndicator
 } from 'react-native'
 import * as Yup from 'yup'
+import { registerUser } from '../(services)/api/api'
 
 const validationShema = Yup.object().shape({
   email: Yup.string().email().required('Email is required').label('Email'),
   password: Yup.string()
-		.min(8, 'Password must be at least 8 characters long')
-		.required('Password is required')
-		.label('Password'),
+    .min(8, 'Password must be at least 8 characters long')
+    .required('Password is required')
+    .label('Password'),
   confirmPassword: Yup.string()
-		.oneOf([Yup.ref('password'), null], 'Password must match')
-		.required('Required')
+    .oneOf([Yup.ref("password"), null], "Passwords must match")
+    .required("Required"),
 })
 const Register = () => {
+  const mutation = useMutation({
+    mutationFn: registerUser,
+    mutationKey: ['register']
+  })
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Register</Text>
+
+      {/* Mensajes de éxito o error */}
+      {mutation.isError && (
+        <Text style={styles.errorText}>
+          {mutation.error?.response?.data?.message || 'User already exists'}
+        </Text>
+      )}
+      {
+        mutation.isSuccess && <Text style={styles.successText}>Registration in successful</Text>
+      }
       {/* Formik configuration */}
       <Formik
-        initialValues={{ email: '', password: '', password: '' }}
-        onSubmit={values => console.log(values)}
-        validationSchema={validationShema}
-			>
+        initialValues={{ email: 'daniel@gmail.com', password: '12345678', confirmPassword: '12345678' }}
+        onSubmit={(values) => {
+          mutation.mutateAsync(values)
+            .then((data) => { console.log(data) })
+            .catch((error) => { console.log(error) })
+        }}
+        validationSchema={validationShema}>
         {({
-					handleChange,
-					handleBlur,
-					handleSubmit,
-					values,
-					touched,
-					errors
-				}) =>
-  <View style={styles.form}>
-    {/* Email */}
-    <TextInput
-      style={styles.input}
-      placeholder='Email'
-      onChangeText={handleChange('email')}
-      onBlur={handleBlur('email')}
-      value={values.email}
-      keyboardType='email-address'
-      autoCapitalize='none'
-						/>
-    {/* Error */}
-    {touched.email &&
-							errors.email &&
-							<Text style={styles.errorText}>
-  {errors.email}
-							</Text>}
-    {/* Password */}
-    <TextInput
-      style={styles.input}
-      placeholder='Password'
-      onChangeText={handleChange('password')}
-      onBlur={handleBlur('password')}
-      value={values.password}
-      secureTextEntry
-						/>
-    {/* Confirm Password */}
-    <TextInput
-      style={styles.input}
-      placeholder='Confirm Password'
-      onChangeText={handleChange('confirmPassword')}
-      onBlur={handleBlur('confirmPassword')}
-      value={values.confirmPasswordassword}
-      secureTextEntry
-						/>
-    {/* Error */}
-    {touched.confirmPassword &&
-							errors.confirmPassword &&
-							<Text style={styles.errorText}>
-  {errors.confirmPassword}
-							</Text>}
-    {/* Login */}
-    <TouchableOpacity onPress={handleSubmit}>
-      <View style={styles.button}>
-        <Text style={styles.buttonText}>Register</Text>
-      </View>
-    </TouchableOpacity>
-  </View>}
+          handleChange,
+          handleBlur,
+          handleSubmit,
+          values,
+          touched,
+          errors
+        }) =>
+          <View style={styles.form}>
+            {/* Email */}
+            <TextInput
+              style={styles.input}
+              placeholder="Email"
+              onChangeText={handleChange('email')}
+              onBlur={handleBlur('email')}
+              value={values.email}
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
+            {/* Error */}
+            {touched.email &&
+              errors.email &&
+              <Text style={styles.errorText}>
+                {errors.email}
+              </Text>}
+            {/* Password */}
+            <TextInput
+              style={styles.input}
+              placeholder="Password"
+              onChangeText={handleChange('password')}
+              onBlur={handleBlur('password')}
+              value={values.password}
+              secureTextEntry
+            />
+            {/* Confirm Password */}
+            <TextInput
+              style={styles.input}
+              placeholder="Confirm Password"
+              onChangeText={handleChange('confirmPassword')}
+              onBlur={handleBlur('confirmPassword')}
+              value={values.confirmPassword}
+              secureTextEntry
+            />
+            {/* Error */}
+            {errors.confirmPassword && touched.confirmPassword ? (
+              <Text style={styles.errorText}>{errors.confirmPassword}</Text>
+            ) : null}
+            {/* Login */}
+            <TouchableOpacity onPress={handleSubmit} style={styles.button}>
+              {mutation.isPending ? <ActivityIndicator color='#fff' /> : <Text style={styles.buttonText}>Register</Text>}
+            </TouchableOpacity>
+          </View>}
       </Formik>
     </View>
   )
@@ -132,5 +148,9 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold'
+  },
+  successText: {
+    color: 'green',
+    marginBottom: 16
   }
 })

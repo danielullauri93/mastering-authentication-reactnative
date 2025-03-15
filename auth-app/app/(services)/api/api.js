@@ -1,41 +1,20 @@
 import axios from 'axios'
 
-// Create a function to return a Promise
-
 // Login
-const loginUser = async (email, password) => {
-  try {
-    const response = await axios.post(
-			'https://flat-clouds-march.loca.lt/api/users/login',
-      {
-        email,
-        password
-      }
-		)
+export const loginUser = async ({ email, password }) => {
+	const response = await axios.post(
+		'https://plain-suits-punch.loca.lt/api/users/login',
+		{ email, password } // Aquí corregimos el formato
+	)
 
-		// returning a promise
-    return response.data
-  } catch (error) {
-    console.log(error)
-  }
+	return response.data // Devuelve los datos del usuario si todo sale bien
 }
 
 // Register
-const registerUser = async (email, password) => {
-  try {
-    const response = await axios.post(
-			'https://flat-clouds-march.loca.lt/api/users/register',
-      {
-        email,
-        password
-      }
-		)
-
-		// returning a promise
-    return response.data
-  } catch (error) {
-    console.log(error)
-  }
+export const registerUser = async ({ email, password }) => {
+	const response = await axios.post(
+		'https://plain-suits-punch.loca.lt/api/users/register',
+		{ email, password }
+	)
+	return response.data
 }
-
-export { loginUser, registerUser }
